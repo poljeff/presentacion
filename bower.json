@@ -1,0 +1,31 @@
+{
+  "name": "presentacion",
+  "authors": [
+    "polmalpartidar <poolrojasm@gmail.com>"
+  ],
+  "description": "promocion 2016",
+  "main": "index.html",
+  "keywords": [
+    "presentacion",
+    "introduction",
+    "promocion",
+    "softwarelibre"
+  ],
+  "license": "MIT",
+  "homepage": "www.codeforwards.com/flisol",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.5",
+    "firebase": "^2.4.2",
+    "Materialize": "materialize#^0.97.6",
+    "angularfire": "^1.2.0",
+    "ngstorage": "^0.3.10"
+  }
+}

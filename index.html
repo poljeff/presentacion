@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="introduction">
+<head>
+	<meta charset="UTF-8">
+	<title>Intro</title>
+	 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="bower_components/Materialize/dist/css/materialize.min.css">
+	<script src="bower_components/angular/angular.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="bower_components/firebase/firebase.js"></script>
+	<script src="bower_components/ngstorage/ngStorage.min.js"></script>
+	<script src="bower_components/angularfire/dist/angularfire.min.js"></script>
+	<script src="scripts/app.js"></script>
+</head>
+<style>
+	/*.container{
+		border: 1px solid red
+	}*/
+	.c-wraperUser{
+		width: 100vw;
+		height: 100vh;
+		background-color: rgba(1,1,1,.8);
+		display: flex;
+		position: fixed;
+		top: 0;
+		right: 0;
+		left: 0;
+		z-index: 5;
+		flex-direction: column;
+		margin: 0 !important;
+	}
+	.c-wraperUser__head{
+		height: 60px;
+	}
+	.c-wraperUser__body{
+		height: calc(100vh - 60px);
+		color: white;
+	}
+	.c-wraperUser__head i.close{
+		position: absolute;
+		top: .5em;
+		right: .5em;
+		font-size: 2em;
+		color:white;
+		cursor: pointer;
+	}
+	.c-wraperUser__head i.close:hover{
+		color:#ee0330;
+	}
+	.c-wraperUser input:focus{
+		background-color: #9fd9d8;
+	}
+	.r{
+		border: 1px solid red
+	}
+	.c-asignate{
+		flex-direction: column;
+		position: absolute;
+		background-color: rgba(1,1,1,.5);
+		margin: auto;
+		top: 0;
+		bottom: 0;
+		z-index: 5;
+		height: 200px;
+		width: 55%;
+		color:white;
+	}
+	.c-asignate span{
+		font-size: 2em;
+	}
+</style>
+<body class="container row" ng-controller="main">
+	<!-- <div class="c-wraperUser container valign-wrapper" ng-show="viewUser">
+		<div class="row col s12">
+			<div class="col s12 input-field">
+				<input type="text" ng-init="user.name = ''"  ng-keypress="validateUser($event)" ng-model="user.name" placeholder="tu nombre aquí...">
+			</div>
+			<div class="col s4 offset-s4 center" ng-show="user.name != ''">
+				Hola {{user.name}}, Para ingresar pulsa Enter ;)
+			</div>
+		</div>
+	</div> -->
+	<aside class="col s12 m4 l2">
+		<div class="col s12">logo</div>
+		<ul class="col s12">
+			<li><a href="#" ng-click="changeView('mainView')">Inicio</a></li>
+			<li><a href="#" ng-click="changeView('studentView')">Ingresantes</a></li>
+			<li><a href="#" ng-click="changeView('nicknameView')">Alias</a></li>
+			<li><a href="#" ng-click="changeView('godfatherView')">Padrinos</a></li>
+		</ul>
+	</aside>
+	
+	<section class="container col s12 m8 l10">
+		<!-- vistas -->
+		<section class="container card-panel col s12 row" ng-show="mainView">
+			<!-- loader -->
+			<div class="div col s12" ng-hide="start">
+				Conectando al server...
+				<div class="progress red">
+					<div class="indeterminate red lighten-3"></div>
+				</div>
+			</div>
+			<!-- modal -->
+			<div class="c-wraperUser" ng-show="viewUser">
+				<div class="c-wraperUser__head ">
+					{{temp.first_name +" "+ temp.last_name0 +" "+ temp.last_name1}}asdasd
+					<i class="material-icons close" ng-click="saveStudent(temp)">
+					clear
+					</i>
+				</div>
+				<div class="c-wraperUser__body container valign-wrapper">
+					<div class="col s12 ">
+						<div class="input-field col s4">
+							Nombre
+							<input ng-model="temp.first_name" type="text" class="validate">
+						</div>
+						<div class="input-field col s4">
+							Apellido paterno
+							<input ng-model="temp.last_name0" type="text" class="validate">
+						</div>
+						<div class="input-field col s4">
+							Apellido materno
+							<input ng-model="temp.last_name1" type="text" class="validate">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="c-asignate valign-wrapper" ng-show="viewAsignateNick">
+			<!-- <div class="c-asignate valign-wrapper" ng-show="true"> -->
+					Asignando un Apodo ;).
+				<div class="progress cyan darken-1">
+					<div class="indeterminate cyan lighten-2"></div>
+				</div>
+				<span>{{apodo}}</span> <a href="##" ng-show="apodo != ''"><i class="material-icons circle green green-text text-lighten-5" ng-click="resetNick()">done</i></a>
+				<img ng-src="{{image}}" alt="">
+			</div>
+
+			<div class="c-asignate valign-wrapper" ng-show="viewAsignateGodf">
+					Asignando un Padrino ;).
+				<div class="progress green">
+					<div class="indeterminate green lighten-3"></div>
+				</div>
+				<span>{{padrino}}</span> <a href="##" ng-show="padrino != ''"><i class="material-icons circle green green-text text-lighten-5" ng-click="resetgf()">done</i></a>
+			</div>
+			<!-- items -->
+			<ul class="collection">
+				<li class="collection-item avatar" ng-repeat="(i, item) in students">
+					<i class="material-icons circle">face</i>
+					<span class="title">{{item.first_name +" "+ item.last_name0 +" "+ item.last_name1}}</span>
+					<p>
+						<a href="##" class="blue-text" ng-click="asignateGodf(item,$index)" ng-hide="item.godfAsigned">Asignar Padrino? <i class="material-icons">cached</i></a>
+						<span class="chip blue lighten-3" ng-show="item.godfAsigned">
+							<!-- <img src="img/logo.png" alt="Contact Person"> -->
+							{{item.godfName}}
+						</span >
+						<a href="##" class="green-text" ng-click="asignateNick(item,$index)" ng-hide="item.nickAsigned">Asignar apodo? <i class="material-icons">cached</i></a>
+						<span class="chip green lighten-1" ng-show="item.nickAsigned">
+							<!-- <img ng-src="{{item.nick.name}}" alt="Contact Person"> -->
+							{{item.nickName}}
+						</span>
+					</p>
+					<img src="" alt="">
+					<a href="#!" class="secondary-content" ng-click="loadUser(item,$index)"><i class="material-icons">edit</i></a>
+				</li>	
+			</ul>
+		</section>
+
+
+
+
+
+
+
+		<section class="container card-panel col s12 row" ng-controller="student" ng-show="studentView">
+			<div class="row">
+				<div class="col s6">
+					<h4>ESTUDIANTES</h4>
+				</div>
+				<div class="col s3 offset-s3 wraper">
+				<br>
+					<a class=" btn-floating waves-effect waves-light blue" ng-show="students.length != 0" ng-click="viewSearch = !viewSearch;query=''"><i class="material-icons">search</i></a>
+					<a class=" btn-floating waves-effect waves-light blue" ng-hide="addStudentComp==true" ng-click="changeViewAdd()"><i class="material-icons">add</i></a>
+					<a class=" btn-floating waves-effect waves-light red" ng-show="addStudentComp==true" ng-click="addStudentComp = false"><i class="material-icons">clear</i></a>
+				</div>
+			</div>
+			<div class="col s4 offset-s8 row" ng-show="viewSearch">
+				<input type="text" placeholder="buscador..." ng-model="query">
+			</div>
+			<!-- add student -->
+			<div class="col s12 row card-panel blue-grey" ng-show="addStudentComp">
+				<div class="input-field  light-blue-text col s2">
+					<input placeholder="1094403052,1624403154..." ng-model="newUser.code" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s2">
+					<input placeholder="nombre" ng-model="newUser.first_name" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s3">
+					<input placeholder="Apellido paterno..." ng-model="newUser.last_name0" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s3">
+					<input placeholder="Apellido materno..." ng-model="newUser.last_name1" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s1">
+					<button class="btn waves-effect waves-light" ng-disabled="!newUser.first_name || !newUser.last_name0 || !newUser.last_name1 || !newUser.code" ng-class="{'disabled': !newUser.first_name || !newUser.last_name0 || !newUser.last_name1 || !newUser.code}" ng-click="addStudent(newUser)">+
+					</button>
+				</div>
+				<!-- message add -->
+				<div class="col s12 card-panel teal lighten-2 blue-text text-lighten-5">{{smsAdd}}</div>
+			</div>
+			<div class="col s12 row">
+				<ul class="collection">
+					<li class="collection-item avatar"  ng-repeat="student in students | filter:query track by $index ">
+						<i class="material-icons large circle green">face</i>
+						<span class="title">{{student.code}}</span>
+						<p>{{student.first_name +" "+ student.last_name0 +" "+ student.last_name1}} <br>
+						</p>
+						<p>Padrino : 
+							<span class="pink-text lighten-3" ng-hide="student.nickAsigned">
+								No asignado 
+								<i class="material-icons">
+									sentiment_dissatisfied
+								</i>
+							</span>
+							<span class="green-text lighten-3" ng-hide="!student.nickAsigned">
+								{{student.nickName}}
+								<i class="material-icons">
+									sentiment_satisfied
+								</i>
+							</span>
+						</p>
+						<p>Alias : 
+							<span class="red-text lighten-3" ng-hide="student.godfAsigned">
+								No tiene
+								<i class="material-icons">
+									sentiment_dissatisfied
+								</i>
+							</span>
+							<span class="green-text lighten-3" ng-hide="!student.godfAsigned">
+								{{student.godfName}}
+								<i class="material-icons">
+									sentiment_satisfied
+								</i>
+							</span>
+						</p>
+						<a href="##" class="secondary-content" ng-click="deleteStudent($index)"><i class="material-icons">clear</i></a>
+					</li>
+				</ul>
+			</div> 
+			<div class="div col s12" ng-show="students == 's'">
+				<div class="progress">
+					<div class="indeterminate"></div>
+				</div>Cargando datos ...
+			</div>
+			<div class="div col s12" ng-show="students.length == 0">
+				<div class="progress">
+					<div class="indeterminate"></div>
+				</div>no hay datos
+			</div>
+		</section>
+
+
+		<!-- NICKS -->
+		<!-- https://cdn4.iconfinder.com/data/icons/social-messaging-productivity-4/128/bug-512.png -->
+		<section class="nicks container card-panel col s12 row" ng-show="nicknameView" ng-controller="nickname">
+			<div class="row">
+				<div class="col s6">
+					<h4>ALIAS</h4>
+				</div>
+				<div class="col s3 offset-s3 wraper">
+				<br>
+					<a class=" btn-floating waves-effect waves-light blue" ng-show="nicknames.length != 0" ng-click="viewSearch = !viewSearch;query=''"><i class="material-icons">search</i></a>
+
+					<a class="btn-floating waves-effect waves-light blue" ng-hide="addNickView==true" ng-click="changeViewAdd()"><i class="material-icons">add</i></a>
+					<a class=" btn-floating waves-effect waves-light red" ng-show="addStudentComp==true" ng-click="addStudentComp = false"><i class="material-icons">clear</i></a>
+				</div>
+			</div>
+			<div class="col s4 offset-s8 row" ng-show="viewSearch">
+				<input type="text" placeholder="buscador..." ng-model="query">
+			</div>
+			<!-- add student -->
+			<div class="col s12 row card-panel blue-grey" ng-show="addNickView">
+				
+				<div class="input-field  light-blue-text col s4">
+					<input placeholder="nombre..." ng-model="newNick.name" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s6">
+					<input placeholder="url" ng-model="newNick.url" type="text" class="validate">
+				</div>
+
+				<div class="input-field light-blue-text col s1">
+					<button class="btn waves-effect waves-light" ng-disabled="!newNick.name || !newNick.description || !newNick.url" ng-class="{'disabled': !newNick.name || !newNick.description || !newNick.url}" ng-click="addNick(newNick)">+
+					</button>
+				</div>
+				<div class="input-field light-blue-text col s12">
+					<textarea placeholder="Descripción" ng-model="newNick.description" type="text"></textarea>
+				</div>
+				<!-- message add -->
+				<div class="col s12 card-panel teal lighten-2 blue-text text-lighten-5">{{smsAdd}}</div>
+			</div>
+			<div class="col s12 row">
+				<ul class="collection">
+					<li class="collection-item avatar row"  ng-repeat="nick in nicknames | filter:query track by $index" ng-init="nick.more = false">
+						<img ng-src="{{nick.url}}"  alt="{{nick.name}}" class="circle" ng-click="nick.more = !nick.more"l>
+						<span class="title">{{nick.name}}</span>
+						<p>{{nick.description}}<br>
+						</p>
+						<div class="row col offset-s6 s6" ng-show="nick.more">
+							<div class="card">
+								<div class="card-image">
+									<img ng-src="{{nick.url}}">
+									<span class="card-title blue-text">{{nick.name}}</span>
+								</div>
+							</div>
+						</div>
+						<a href="##" class="secondary-content" ng-click="deleteNick($index)"><i class="material-icons">clear</i></a>
+					</li>
+				</ul>
+			</div>
+			<div class="div col s12" ng-show="nicknames.length == 0">
+				<div class="progress">
+					<div class="indeterminate"></div>
+				</div>Cargando datos ...
+			</div>
+		</section>
+
+
+		<section class="godfathers container card-panel col s12 row" ng-show="godfatherView" ng-controller="godfather">
+			<div class="row">
+				<div class="col s6">
+					<h4>PADRINOS</h4>
+				</div>
+				<div class="col s3 offset-s3 wraper">
+				<br>
+					<a class="btn-floating waves-effect waves-light blue" ng-show="godfathers.length != 0" ng-click="viewSearch = !viewSearch;query=''"><i class="material-icons">search</i></a>
+					<a class=" btn-floating waves-effect waves-light blue" ng-hide="addGodFatherView==true" ng-click="changeViewAdd()"><i class="material-icons">add</i></a>
+					<a class=" btn-floating waves-effect waves-light red" ng-show="addGodFatherView==true" ng-click="addGodFatherView = false"><i class="material-icons">clear</i></a>
+				</div>
+			</div>
+			<div class="col s4 offset-s8 row" ng-show="viewSearch">
+				<input type="text" placeholder="buscador..." ng-model="query">
+			</div>
+			<!-- add student -->
+			<div class="col s12 row card-panel blue-grey" ng-show="addGodFatherView">
+
+				<div class="input-field light-blue-text col s2">
+					<input placeholder="Cargo..." ng-model="newGod.position" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s2">
+					<input placeholder="nombre" ng-model="newGod.first_name" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s3">
+					<input placeholder="Apellido paterno..." ng-model="newGod.last_name0" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s3">
+					<input placeholder="Apellido materno..." ng-model="newGod.last_name1" type="text" class="validate">
+				</div>
+				<div class="input-field light-blue-text col s1">
+					<button class="btn waves-effect waves-light" ng-disabled="!newGod.position || !newGod.first_name || !newGod.last_name0 || !newGod.last_name1" ng-class="{'disabled': !newGod.position || !newGod.first_name || !newGod.last_name0 || !newGod.last_name1}" ng-click="addGodFather(newGod)">+
+					</button>
+				</div>
+
+				<!-- message add -->
+				<div class="col s12 card-panel teal lighten-2 blue-text text-lighten-5">{{smsAdd}}</div>
+			</div>
+			<div class="col s12 row">
+				<ul class="collection">
+					<li class="collection-item avatar"  ng-repeat="godF in godfathers | filter:query track by $index ">
+						<i class="material-icons large circle green">person</i>
+						<span class="title">{{godF.first_name +" "+ godF.last_name0 +" "+ godF.last_name1}} </span>
+						<p>{{godF.position}}<br>
+						</p>
+						<a href="#!" class="secondary-content" ng-click="deletegodfather($index)"><i class="material-icons">clear</i></a>
+					</li>
+				</ul>
+			</div>
+			<div class="div col s12" ng-show="godfathers.length == 0">
+				<div class="progress">
+					<div class="indeterminate"></div>
+				</div>Cargando datos ...
+			</div>
+		</section>
+	</section>
+	<span id="clock"></span>
+	<script>
+		function doClock(){
+			setTimeout("doClock()",1e3);
+			t=new Date;
+			m=t.getMonth();
+			d=t.getDay();
+			dt=t.getDate();
+			y=t.getFullYear();
+			h=t.getHours();
+			if(h<12){
+				ap="AM"
+			}else{
+				ap="PM";h=h-12
+			}
+			mn=pad(t.getMinutes());
+			s=pad(t.getSeconds());
+			if(h==0){
+				h=12
+			}
+			clockID.innerHTML="Ahora son las: "+h+":"+mn+":"+s+" "+ap
+		}
+		function pad(a){
+			if(a<10){
+				a="0"+a
+			}
+			return a
+		};
+		clockID=document.getElementById('clock');doClock();
+		window.onload=function(){
+			doClock();}
+</script>
+
+</body>
+</html>
